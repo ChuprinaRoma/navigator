@@ -9,10 +9,19 @@ namespace App1
 {
     public static class Mapmanager
     {
-        public static List<Location> GetPoint(string streat, double lat, double lng)
+        public static List<Location> GetPoint(double lat, double lng, double lat1 = 0, double lng1 = 0, string streat = null)
         {
+            string respSt = null;
             List<Location> locations = null;
-            string respSt = ReqvestMapsApi(streat, lat, lng);
+            if (streat != null)
+            {
+                respSt = ReqvestMapsApi(streat, lat, lng);
+            }
+            else
+            {
+
+                respSt = ReqvestMapsApi(lat, lng, lat1, lng1);
+            }
             List<Step> steps = GetSteps(respSt);
             locations = new List<Location>();
             foreach (var step in steps)
@@ -40,7 +49,18 @@ namespace App1
             IRestResponse response = null;
             string respStr = null;
             RestClient client = new RestClient("https://maps.googleapis.com");
-            RestRequest request = new RestRequest($"maps/api/directions/json?origin={lat.ToString().Replace(",", ".")},{lng.ToString().Replace(",", ".")}&destination={streat}&key=AIzaSyB917U1b6-XWAg1Z8vmGWUjBCGb2FP4jOI", Method.GET);
+            RestRequest request = new RestRequest($"maps/api/directions/json?origin={lat.ToString().Replace(",", ".")},{lng.ToString().Replace(",", ".")}&destination={streat}&key=AIzaSyC7O3O37rv4xDY27oT34peX1z_l9HihH0w", Method.GET);
+            response = client.Execute(request);
+            respStr = response.Content;
+            return respStr;
+        }
+
+        private static string ReqvestMapsApi(double lat, double lng, double lat1, double lng1)
+        {
+            IRestResponse response = null;
+            string respStr = null;
+            RestClient client = new RestClient("https://maps.googleapis.com");
+            RestRequest request = new RestRequest($"maps/api/directions/json?origin={lat.ToString().Replace(",", ".")},{lng.ToString().Replace(",", ".")}&destination={lat1.ToString().Replace(",", ".")},{lng1.ToString().Replace(",", ".")}&key=AIzaSyC7O3O37rv4xDY27oT34peX1z_l9HihH0w", Method.GET);
             response = client.Execute(request);
             respStr = response.Content;
             return respStr;

@@ -4,7 +4,7 @@
              xmlns:maps="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps"
              x:Class="App1.MainPage">
     <AbsoluteLayout>
-        <maps:Map  x:Name="map" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="1, 1, 1, 1" CameraMoveStarted="Map_CameraMoveStarted" MyLocationButtonClicked="Map_MyLocationButtonClicked" />
+        <maps:Map  x:Name="map" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="1, 1, 1, 1" CameraMoveStarted="Map_CameraMoveStarted" MyLocationButtonClicked="Map_MyLocationButtonClicked" MapClicked="Map_MapClicked"/>
         <FlexLayout AbsoluteLayout.LayoutBounds="1, 1, 1, 50" AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional">
             <Entry x:Name="streetE" FlexLayout.Grow="4"/>
             <Button FlexLayout.Grow="1" Clicked="Button_Clicked_1" Text="Go"/>

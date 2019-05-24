@@ -3,10 +3,7 @@ using Plugin.Geolocator.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -60,12 +57,12 @@ namespace App1
                     map.Polylines[0].Positions.Remove(position);
                     return;
                 }
-                if (e.Position.Latitude - position.Latitude > 0.000040 || e.Position.Latitude - position.Latitude < -0.000040 || position.Longitude - e.Position.Longitude > 0.000040 || position.Longitude - e.Position.Longitude < -0.000040)
+                if ((e.Position.Latitude - position.Latitude > 0.000040 || e.Position.Latitude - position.Latitude < -0.000040 || position.Longitude - e.Position.Longitude > 0.000040 || position.Longitude - e.Position.Longitude < -0.000040))
                 {
                     if (isRefreshPolylines)
                     {
                         isRefreshPolylines = false;
-                        Button_Clicked_1(null, null);
+                        RefreshPoly();
                     }
                 }
             });
@@ -92,21 +89,6 @@ namespace App1
             }
         }
 
-        private async void Button_Clicked(object sender, EventArgs e)
-        {
-           
-        }
-
-
-
-        private void Map_CameraMoving(object sender, CameraMovingEventArgs e)
-        {
-            //if (Compass.IsMonitoring)
-            //{
-            //    Compass.Stop();
-            //}
-        }
-
         private void Map_MyLocationButtonClicked(object sender, MyLocationButtonClickedEventArgs e)
         {
             if (!Compass.IsMonitoring)
@@ -123,17 +105,17 @@ namespace App1
             }
         }
 
-        private async void Button_Clicked_1(object sender, EventArgs e)
+        private async void RefreshPoly()
         {
-            if(CrossGeolocator.Current.IsListening)
+            if (CrossGeolocator.Current.IsListening)
             {
                 await CrossGeolocator.Current.StopListeningAsync();
             }
             Xamarin.Forms.GoogleMaps.Polyline polyline = null;
-            await Task.Run( async() =>
+            await Task.Run(async () =>
             {
                 Plugin.Geolocator.Abstractions.Position position = await CrossGeolocator.Current.GetLastKnownLocationAsync();
-                List<Location> locations = Mapmanager.GetPoint(streetE.Text, position.Latitude, position.Longitude);
+                List<Location> locations = Mapmanager.GetPoint(position.Latitude, position.Longitude, map.Polylines[0].Positions.Last().Latitude, map.Polylines[0].Positions.Last().Longitude);
                 polyline = new Xamarin.Forms.GoogleMaps.Polyline();
 
                 foreach (var location in locations)
@@ -142,9 +124,9 @@ namespace App1
                 }
                 polyline.StrokeColor = Color.Blue;
                 polyline.StrokeWidth = 5f;
-                Device.BeginInvokeOnMainThread( async() =>
+                map.Polylines.Clear();
+                Device.BeginInvokeOnMainThread(async () =>
                 {
-                    map.Polylines.Clear();
                     map.Polylines.Add(polyline);
                 });
                 if (!CrossGeolocator.Current.IsListening)
@@ -152,7 +134,71 @@ namespace App1
                     isRefreshPolylines = true;
                     await CrossGeolocator.Current.StartListeningAsync(TimeSpan.FromSeconds(1), 1, true);
                 }
-            }); 
+            });
+        }
+
+        private async void Button_Clicked_1(object sender, EventArgs e)
+        {
+            if (CrossGeolocator.Current.IsListening)
+            {
+                await CrossGeolocator.Current.StopListeningAsync();
+            }
+            Xamarin.Forms.GoogleMaps.Polyline polyline = null;
+            await Task.Run(async () =>
+           {
+               Plugin.Geolocator.Abstractions.Position position = await CrossGeolocator.Current.GetLastKnownLocationAsync();
+               List<Location> locations = Mapmanager.GetPoint(position.Latitude, position.Longitude, streat: streetE.Text);
+               polyline = new Xamarin.Forms.GoogleMaps.Polyline();
+
+               foreach (var location in locations)
+               {
+                   polyline.Positions.Add(new Position(location.Latitude, location.Longitude));
+               }
+               polyline.StrokeColor = Color.Blue;
+               polyline.StrokeWidth = 5f;
+               map.Polylines.Clear();
+               Device.BeginInvokeOnMainThread(async () =>
+               {
+                   map.Polylines.Add(polyline);
+               });
+               if (!CrossGeolocator.Current.IsListening)
+               {
+                   isRefreshPolylines = true;
+                   await CrossGeolocator.Current.StartListeningAsync(TimeSpan.FromSeconds(1), 1, true);
+               }
+           });
+        }
+
+        private async void Map_MapClicked(object sender, MapClickedEventArgs e)
+        {
+            if (CrossGeolocator.Current.IsListening)
+            {
+                await CrossGeolocator.Current.StopListeningAsync();
+            }
+            Xamarin.Forms.GoogleMaps.Polyline polyline = null;
+            await Task.Run(async () =>
+            {
+                Plugin.Geolocator.Abstractions.Position position = await CrossGeolocator.Current.GetLastKnownLocationAsync();
+                List<Location> locations = Mapmanager.GetPoint(position.Latitude, position.Longitude, e.Point.Latitude, e.Point.Longitude);
+                polyline = new Xamarin.Forms.GoogleMaps.Polyline();
+
+                foreach (var location in locations)
+                {
+                    polyline.Positions.Add(new Position(location.Latitude, location.Longitude));
+                }
+                polyline.StrokeColor = Color.Blue;
+                polyline.StrokeWidth = 5f;
+                map.Polylines.Clear();
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    map.Polylines.Add(polyline);
+                });
+                if (!CrossGeolocator.Current.IsListening)
+                {
+                    isRefreshPolylines = true;
+                    await CrossGeolocator.Current.StartListeningAsync(TimeSpan.FromSeconds(1), 1, true);
+                }
+            });
         }
     }
 }

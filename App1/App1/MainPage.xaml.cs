@@ -60,7 +60,6 @@ namespace App1
                     map.Polylines[0].Positions.Remove(position);
                     return;
                 }
-                var amplitudeLatitude = 48.4481256 - 48.44807;
                 if (e.Position.Latitude - position.Latitude > 0.000040 || e.Position.Latitude - position.Latitude < -0.000040 || position.Longitude - e.Position.Longitude > 0.000040 || position.Longitude - e.Position.Longitude < -0.000040)
                 {
                     if (isRefreshPolylines)
